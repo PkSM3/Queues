@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>Proyecto Simulación - Fase 1</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/bootstrap.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Josefin+Sans:300,400,700">
+    <link rel="stylesheet" href="bootswatch/css/bootswatch.css">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="../bower_components/bootstrap/assets/js/html5shiv.js"></script>
+      <script src="../bower_components/bootstrap/assets/js/respond.min.js"></script>
+    <![endif]-->
+    <script src="bootswatch/js/bsa_002.js" async="" type="text/javascript"></script>
+    <script src="js/jquery.js"></script>
+    <script type="text/javascript" src = "js/jsapi.js" charset="utf-8"></script>
+    <script type="text/javascript">
+        google.load("visualization", "1", {packages:["corechart"]});
+    </script>
+    <script src="js/bootstrap.js"></script>
+    <script src="bootswatch/js/bootswatch.js"></script>
+    <script src="main.js"></script>
+</head>
+
+<body onload="$('#histo').hide();">
+            <div class="navbar navbar-default navbar-fixed-top">
+		<div class="container">
+			<div class="navbar-header">
+				<a href="#" class="navbar-brand">DISTRIBUCIONES</a>
+				<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+			</div>
+			<div class="navbar-collapse collapse" id="navbar-main">
+				<ul class="nav navbar-nav">
+					<li class="dropdown">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="themes">CONTINUAS <span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li> <a href="#" onclick="distribucion(this);">Normal</a> </li>
+							<li> <a href="#" onclick="distribucion(this);">Uniforme Continuia</a> </li>
+							<li> <a href="#" onclick="distribucion(this);">Log-Normal</a> </li>
+							<li> <a href="#" onclick="distribucion(this);">Gamma</a> </li>
+							<li> <a href="#" onclick="distribucion(this);">Beta</a> </li>
+							<li> <a href="#" onclick="distribucion(this);">Exponencial</a> </li>
+						</ul>
+					</li>
+					<li class="disabled">
+						<a>O</a>
+					</li>
+					<li class="dropdown">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="themes">DISCRETAS <span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li> <a href="#" onclick="distribucion(this);">Uniforme Discreta</a> </li>
+							<li> <a href="#" onclick="distribucion(this);">Binomial</a> </li>
+							<li> <a href="#" onclick="distribucion(this);">Bernoulli</a> </li>
+							<li> <a href="#" onclick="distribucion(this);">Geométrica</a> </li>
+							<li> <a href="#" onclick="distribucion(this);">Poisson</a> </li>
+						</ul>
+					</li>
+				</div><!--navbar-main-->
+			</div><!--container-->
+		</div><!--navbar-fixed-top-->
+
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="navbar navbar-default">
+						<div style="padding:30px;">
+							<form class="form-horizontal" style="display:none" id="form_data">
+								<div class="control-group">
+									<h3 id="distribucion"></h3>
+									<br/>
+									<div class="controls form-inline" id="campos">
+
+										<label for="iteraciones">Iteraciones</label>
+										<input type="number" class="input-small" placeholder="nº Iteraciones" id="iteraciones" name="iteraciones">
+
+										<label for="iteraciones">Semilla</label>
+										<input type="number" class="input-small" placeholder="semilla" id="semilla" name="semilla">
+
+										<label id="a_label" for="a">a</label>
+										<input type="number" class="input-small" placeholder="a" id="a" name="a">
+
+										<label id="n_label" for="n">n</label>
+										<input type="number" class="input-small" placeholder="n" id="n" name="n">
+
+										<label id="b_label" for="b">b</label>
+										<input type="number" class="input-small" placeholder="b" id="b" name="b">
+
+										<label id="lambda_label" for="lambda">Lambda</label>
+										<input type="number" class="input-small" placeholder="lambda" id="lambda" name="lambda">
+
+										<label id="mu_label" for="mu">Mu</label>
+										<input type="number" class="input-small" placeholder="mu" id="mu" name="mu">
+
+										<label id="teta_label" for="teta">Teta</label>
+										<input type="number" class="input-small" placeholder="teta" id="teta" name="teta">
+
+										<label id="p_label" for="p">P</label>
+										<input type="number" class="input-small" placeholder="p" id="p" name="p">
+
+										<input type="hidden" value="" id="tipo_distribucion" name="tipo_distribucion">
+
+										<br>
+										<br>
+										<button type="button" class="btn btn-default btn-sm" onclick="ejecutarSimulador()" >Ejecutar</button>
+									</div>
+								</div>
+							</form>
+							<h3 style="text-align:center" id="text_inicio">Seleccione alguna de las distribuciones en la parte superior.</h3>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!--row-->
+
+
+	</div>
+
+        <div id="histo" class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="navbar navbar-default">
+                        <div style="padding:30px;">
+
+                            <div id="chart_div" style="width: 900px; height: 500px;"></div>
+                            <div class="row"  id="result"> </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+</body>
+</html>
