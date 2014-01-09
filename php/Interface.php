@@ -1,7 +1,7 @@
 <?php
 
-ini_set('display_errors', 'On');
-error_reporting(E_ALL | E_STRICT);
+//~ ini_set('display_errors', 'On');
+//~ error_reporting(E_ALL | E_STRICT);
 
 header('Content-type: application/json');
 require_once './VariablesAleatoriasUniforme2.php';
@@ -10,7 +10,7 @@ require_once './Servicio.php';
 //~ require_once './Simulador.php';
 
 //Esto permite tanto post como get.
-$timeStop	 	= isset($_REQUEST['time_stop'])?$_REQUEST['time_stop']:null;
+$timeStop	 	= (isset($_REQUEST['time_stop']) and !empty($_REQUEST['time_stop']))?$_REQUEST['time_stop']:null;
 $numServidores	= isset($_REQUEST['num_servidores'])?$_REQUEST['num_servidores']:2;
 $iterator	 	= isset($_REQUEST['iteraciones'])?$_REQUEST['iteraciones']:null;
 $semilla 		= isset($_REQUEST['semilla'])?$_REQUEST['semilla']:rand();
@@ -30,16 +30,27 @@ $arrayServicios = array();
 for($i = 0; $i < $numServidores; $i++){
 	array_push($arrayServicios, new Servicio());
 }
+$finalArray	= array(
+	'numero_promedio_sistema' 				=> 0.0,
+	'numero_promedio_cola' 					=> 0.0,
+	'tiempo_promedio_sistema' 				=> 0.0,
+	'tiempo_promedio_cola' 					=> 0.0,//ok
+	'porcentaje_ocupacion_servidor' 		=> array(),//ok
+	'numero_abandonos_sistema' 				=> 0.0,
+	'tasa_clientes_efectivamente_atendidos' => 0.0,
+	'tiempo_cola_compelta' 					=> 0.0,
+);
+$cola 		= new Cola($queueDistribution->next());
+$clock	 	= 0.0;
+$i 			= 0;
+$efectivamente_atendidos 	= 0;
 
-$cola 	= new Cola($queueDistribution->next());
-$clock 	= 0.0;
-$i 		= 0;
-
+//~ var_dump($cola->getNextEventArriveQueue());exit;
 $tiempo_inicio = microtime_float();
 //=========================================//
 //COMIENZO DE LA SIMULACION
 
-while($i < $iterator || $clock > $timeStop){
+while($i < $iterator || $clock < $timeStop){
 
 	//Ordeno todos los servidores en base al proximo evento
 	$arrayServicios = serarchNextEventSystemOutput($arrayServicios);
@@ -60,6 +71,9 @@ while($i < $iterator || $clock > $timeStop){
 		$arrayServicios[0]->addTotalAtendidos();
 		if($cola->getLongQueue() > 0){
 			$cola->lowLongQueue($clock);
+			//Actualizo el tiempo en la cola
+			$cola->updateTiempoEnCola($clock);
+
 			$arrayServicios[0]->setNextEventSystemOutput($systemDistribution->next());
 		}else{
 			$arrayServicios[0]->setStatus(true);
@@ -77,12 +91,14 @@ while($i < $iterator || $clock > $timeStop){
 		 */
 		$cola->setNextEventArriveQueue($queueDistribution->next());
 		$indice = searchEmptySystem($arrayServicios);
-		if($indice != null){
+		if($indice !== null){
 			$arrayServicios[$indice]->setStatus(false);
 			$arrayServicios[$indice]->setNextEventSystemOutput($systemDistribution->next());
 			//Seteo las variables para calcular el tiempo parcial de ocupacion
 			$arrayServicios[$indice]->setEndEmpty($clock);
 			$arrayServicios[$indice]->ocupacionParcial();
+			//Actualizo el tiempo en la cola
+			$cola->updateTiempoEnCola($clock);
 		}else{
 			$cola->addLongQueue($clock);
 		}
@@ -98,21 +114,20 @@ while($i < $iterator || $clock > $timeStop){
 	//aumento el indice de iteraciones
 	$i++;
 }
-$promedioElementoCola = $this->cola->promedioElementoCola($clock);
+
+$cola->promedioColaEnd($clock);
+
+$promedioElementoCola = $cola->promedioElementoCola($clock);
 
 for($i = 0; $i < $numServidores; $i++){
-	$arrayServicios[$i]->calcularPorcentajeOcupacion($clock);
+	$finalArray['porcentaje_ocupacion_servidor'][$i] = $arrayServicios[$i]->calcularPorcentajeOcupacion($clock);
 }
+
+$finalArray['tiempo_promedio_cola'] = $promedioElementoCola;
 
 //=========================================//
 $tiempo_fin = microtime_float();
-
 $tiempo = $tiempo_fin - $tiempo_inicio;
-
-$finalArray=array();
-//~ $finalArray["data"]=$dataArray;
-$finalArray["inicioRecupJSON"]=udate('H:i:s.u');
-$finalArray["time"]=$tiempo;
 
 
 if(isset($_GET['callback'])){ // Si es una petición cross-domain

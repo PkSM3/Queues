@@ -57,7 +57,7 @@
                   <div class="form-group">
                     <label for="cola" class="col-lg-2 control-label">Distribuci&oacute;n cola</label>
                     <div class="col-lg-10">
-                      <select id="cola" class="form-control" onchange="distribucion(this);">
+                      <select id="cola" name="cola" class="form-control" onchange="distribucion(this);">
 						<option selected value="-1">Seleccione...</option>
 						<optgroup label="DISCRETAS">
 							<option value="Normal">Normal</option>
@@ -80,7 +80,7 @@
                   <div class="form-group">
 					<label for="servidor" class="col-lg-2 control-label">Distribuci&oacute;n servidor</label>
                     <div class="col-lg-10">
-                      <select id="servidor" class="form-control" onchange="distribucion(this);">
+                      <select id="servidor" name="servidor" class="form-control" onchange="distribucion(this);">
 						<option selected value="-1">Seleccione...</option>
 						<optgroup label="DISCRETAS">
 							<option value="Normal">Normal</option>
@@ -121,7 +121,7 @@
                   <div class="form-group">
                     <label for="num_servidores" class="col-lg-2 control-label">Seervidores</label>
                     <div class="col-lg-10">
-                      <input class="form-control" id="num_servidores" placeholder="nº servidores" type="number">
+                      <input class="form-control" id="num_servidores" name="num_servidores" placeholder="nº servidores" type="number">
                     </div>
                   </div>
                   <div class="form-group">

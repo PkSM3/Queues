@@ -9,7 +9,7 @@ class Servicio{
 	private $nextEventSystemOutput;
 
 	function __construct(){
-		$this->nextEventSystemOutput 	= INF;
+		$this->nextEventSystemOutput 	= PHP_INT_MAX;
 		$this->status 					= true;
 		$this->statEmpty				= 0.0;
 		$this->endEmpty 				= 0.0;
@@ -47,9 +47,7 @@ class Servicio{
 
 	public function calcularPorcentajeOcupacion($finalTime){
 		$this->porcentajeOcupacion /= $finalTime;
-	}
-
-	public function getPorcentajeOcupacion(){
+		$this->porcentajeOcupacion *= 100;
 		return round($this->porcentajeOcupacion, 2);
 	}
 

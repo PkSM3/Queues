@@ -3,10 +3,28 @@ class Cola{
 	private $nextEventArriveQueue;
 	private $longQueue;
 	private $promedioCola = array();
+	private $tiempoEnCola = array();
 
 	function __construct($nextEventArriveQueue){
 		$this->longQueue = 0.0;
 		$this->nextEventArriveQueue = $nextEventArriveQueue;
+		$this->promedioCola[0] = array(
+			'start' 	=> 0.0,
+			'end' 		=> 0.0,
+			'parcial' 	=> 0.0
+		);
+
+		$this->addTiempoEnCola($nextEventArriveQueue);
+	}
+
+	private function addTiempoEnCola($clock){
+		array_push($this->tiempoEnCola, array('start' => $clock, 'end' => 0.0, 'diff' => 0.0));
+	}
+
+	public function updateTiempoEnCola($clock){
+		$indice = count($this->tiempoEnCola) - $this->getLongQueue() - 1;
+		$this->tiempoEnCola[$indice]['end'] = $clock;
+		$this->tiempoEnCola[$indice]['diff'] = $this->tiempoEnCola[$indice]['end'] - $this->tiempoEnCola[$indice]['start'];
 	}
 
 	public function getLongQueue(){
@@ -35,9 +53,10 @@ class Cola{
 
 	public function setNextEventArriveQueue($nextEventArriveQueue){
 		$this->nextEventArriveQueue = $nextEventArriveQueue;
+		$this->addTiempoEnCola($nextEventArriveQueue);
 	}
 
-	private function promedioColaEnd($clock){
+	public function promedioColaEnd($clock){
 		$this->promedioCola[$this->longQueue]['end'] = $clock;
 		$this->promedioCola[$this->longQueue]['parcial'] += ($this->promedioCola[$this->longQueue]['end'] - $this->promedioCola[$this->longQueue]['start']);
 	}
@@ -57,10 +76,17 @@ class Cola{
 
 	public function promedioElementoCola($finalClock){
 		$ocupacion = 0.0;
-		for($i = 0 ; $i < count($promedioCola) ; $i++){
-			$ocupacion += ($i*$promedioCola[$i]['parcial']);
+		if($finalClock == 0){
+			return null;
+		}else{
+			for($i = 0 ; $i < count($this->promedioCola) ; $i++)
+				$ocupacion += ($i*$this->promedioCola[$i]['parcial']);
+			return $ocupacion/$finalClock;
 		}
-		return $ocupacion/$finalClock;
+	}
+
+	public function getPromedioCola(){
+		return $this->promedioCola;
 	}
 
 

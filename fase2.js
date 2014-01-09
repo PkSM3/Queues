@@ -160,7 +160,7 @@ function ejecutarSimulador(){
 		method:'POST',
 		url:'php/Interface.php',
 		cache: false,
-		data: {'cola': JSON.stringify($("#form_cola").serialize()), 'servidor': JSON.stringify($("#form_servidor").serialize()), 'iteraciones': $('#iteraciones').val(),'semilla': $('#semilla').val() },
+		data: {'cola': JSON.stringify($("#form_cola").serialize()), 'servidor': JSON.stringify($("#form_servidor").serialize()), 'iteraciones': $('#iteraciones').val(),'semilla': $('#semilla').val(), 'num_servidores': $('#num_servidores').val(),'time_stop': $('#time_stop').val() },
 		//~ data: $("#form_data").serialize(),
 		success:function(res){
 			$('#result').empty();
