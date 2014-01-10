@@ -51,15 +51,17 @@ $tiempo_inicio = microtime_float();
 //COMIENZO DE LA SIMULACION
 
 while($i < $iterator || $clock < $timeStop){
-
+	$nowClock = $clock;
 	//Ordeno todos los servidores en base al proximo evento
 	$arrayServicios = serarchNextEventSystemOutput($arrayServicios);
 
 	//saco el tiempo del evento del servidor y de la cola
 	$eventSystemOutput = $arrayServicios[0]->getNextEventSystemOutput();
 	$eventArriveQueue = $cola->getNextEventArriveQueue();
+	//~ echo "ITERACION $i, TIEMPO $clock, SIS $eventSystemOutput, QUE $eventArriveQueue - \n";
 
-	if($clock == $eventSystemOutput){
+
+	if($nowClock == $eventSystemOutput){
 		/*
 		 * Evento: salida del sistema
 		 * Acciones:
@@ -70,17 +72,19 @@ while($i < $iterator || $clock < $timeStop){
 		 */
 		$arrayServicios[0]->addTotalAtendidos();
 		if($cola->getLongQueue() > 0){
-			$cola->lowLongQueue($clock);
+			$cola->lowLongQueue($nowClock);
 			//Actualizo el tiempo en la cola
-			$cola->updateTiempoEnCola($clock);
+			$cola->updateTiempoEnCola($nowClock);
 
-			$arrayServicios[0]->setNextEventSystemOutput($systemDistribution->next());
+			$arrayServicios[0]->setNextEventSystemOutput($systemDistribution->next()+$nowClock);
 		}else{
 			$arrayServicios[0]->setStatus(true);
+			$arrayServicios[0]->setNextEventSystemOutput(PHP_INT_MAX);
 			//Si el seervidor esta vacion, comienzo a contar el tiempo en el cual esta vacio
-			$arrayServicios[0]->setStarEmpty($clock);
+
+			$arrayServicios[0]->setStarEmpty($nowClock);
 		}
-	}elseif($clock == $eventArriveQueue){
+	}elseif($nowClock == $eventArriveQueue){
 		/*
 		 * Evento: llegada a la cola
 		 * Acciones:
@@ -89,26 +93,29 @@ while($i < $iterator || $clock < $timeStop){
 		 *  si lo esta, paso el elemento al servicio, calculando el proximo evento de salida, y seteando el estado a ocupado
 		 *  Si no encuentran servidores vacios, aumento el tamaño de la cola
 		 */
-		$cola->setNextEventArriveQueue($queueDistribution->next());
+		$cola->setNextEventArriveQueue($queueDistribution->next()+$nowClock);
 		$indice = searchEmptySystem($arrayServicios);
 		if($indice !== null){
 			$arrayServicios[$indice]->setStatus(false);
-			$arrayServicios[$indice]->setNextEventSystemOutput($systemDistribution->next());
+			$arrayServicios[$indice]->setNextEventSystemOutput($systemDistribution->next()+$nowClock);
 			//Seteo las variables para calcular el tiempo parcial de ocupacion
-			$arrayServicios[$indice]->setEndEmpty($clock);
+			$arrayServicios[$indice]->setEndEmpty($nowClock);
 			$arrayServicios[$indice]->ocupacionParcial();
 			//Actualizo el tiempo en la cola
-			$cola->updateTiempoEnCola($clock);
+			$cola->updateTiempoEnCola($nowClock);
 		}else{
-			$cola->addLongQueue($clock);
+			$cola->addLongQueue($nowClock);
 		}
+	}else{
+		$clock += ($eventArriveQueue < $eventSystemOutput)?
+			$eventArriveQueue:$eventSystemOutput;
 	}
 
 	//Agrego al reloj el siguiente evento
 	if($eventArriveQueue < $eventSystemOutput){
-		$clock += $eventArriveQueue;
+		$clock = $eventArriveQueue;
 	}else{
-		$clock += $eventSystemOutput;
+		$clock = $eventSystemOutput;
 	}
 
 	//aumento el indice de iteraciones
@@ -116,8 +123,9 @@ while($i < $iterator || $clock < $timeStop){
 }
 
 $cola->promedioColaEnd($clock);
-
+//~ exit;
 $promedioElementoCola = $cola->promedioElementoCola($clock);
+//~ var_dump($cola->getPromedioCola());exit;
 
 for($i = 0; $i < $numServidores; $i++){
 	$finalArray['porcentaje_ocupacion_servidor'][$i] = $arrayServicios[$i]->calcularPorcentajeOcupacion($clock);

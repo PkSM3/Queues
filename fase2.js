@@ -152,37 +152,21 @@ function removeTeta(form){
 }
 
 function ejecutarSimulador(){
-        $('#histo').show();
-        $('#chart_div').html("<img src='img/ajax-loader.gif' />");
-        logTiempos="<ul><h3>";
-        logTiempos+="<li>"+getClientTime()+": Inicio de generador de VAs"+"</li>";
+	$('#histo').show();
+	$('#result').html("<img src='img/ajax-loader.gif' />");
 	$.ajax({
 		method:'POST',
 		url:'php/Interface.php',
 		cache: false,
 		data: {'cola': JSON.stringify($("#form_cola").serialize()), 'servidor': JSON.stringify($("#form_servidor").serialize()), 'iteraciones': $('#iteraciones').val(),'semilla': $('#semilla').val(), 'num_servidores': $('#num_servidores').val(),'time_stop': $('#time_stop').val() },
-		//~ data: $("#form_data").serialize(),
 		success:function(res){
-			$('#result').empty();
-			//$('#result').html(res["data"]);
-			//$('#result').show();
-                        logTiempos+="<li>"+res["time"]+" [s]: Tiempo que demora servidor en generar las VAs"+"</li>";
-                        logTiempos+="<li>"+res["inicioRecupJSON"]+": Cliente comienza a recuperar JSON del servidor"+"</li>";
-                        logTiempos+="<li>"+getClientTime()+": Cliente recupera JSON del servidor"+"</li>";
-
-                        google.load("visualization", "1", {packages:["corechart"]});
-                        google.setOnLoadCallback(drawChart(res["data"]));
-
-                        logTiempos+="<li>"+getClientTime()+": Cliente termina de dibujar histograma con GChart"+"</li>";
-                        logTiempos+="</h3></ul";
-			$('#result').html(logTiempos);
-			$('#result').show();
+			console.log(res);
 		},
 		error:function(res){
-                        alert("mal");
-                }
+			alert("mal");
+		}
 	});
-        return false;
+	return false;
 }
 
 function getClientTime(){
