@@ -32,13 +32,13 @@ for($i = 0; $i < $numServidores; $i++){
 }
 $finalArray	= array(
 	'numero_promedio_sistema' 				=> 0.0,
-	'numero_promedio_cola' 					=> 0.0,
+	'numero_promedio_cola' 					=> 0.0,//ok
 	'tiempo_promedio_sistema' 				=> 0.0,
 	'tiempo_promedio_cola' 					=> 0.0,//ok
 	'porcentaje_ocupacion_servidor' 		=> array(),//ok
-	'numero_abandonos_sistema' 				=> 0.0,
+	'numero_abandonos_sistema' 				=> 0.0,//ok
 	'tasa_clientes_efectivamente_atendidos' => 0.0,
-	'tiempo_cola_compelta' 					=> 0.0,
+	'tiempo_cola_compelta' 					=> 0.0,//ok
 );
 $cola 		= new Cola($queueDistribution->next());
 $clock	 	= 0.0;
@@ -123,15 +123,13 @@ while($i < $iterator || $clock < $timeStop){
 }
 
 $cola->promedioColaEnd($clock);
-//~ exit;
-$promedioElementoCola = $cola->promedioElementoCola($clock);
-//~ var_dump($cola->getPromedioCola());exit;
+
+$finalArray['tiempo_promedio_cola'] = round($cola->promedioElementoCola($clock),4);
+$finalArray['numero_promedio_cola'] = round($cola->calcNumeroPromedioCola($clock),4);
 
 for($i = 0; $i < $numServidores; $i++){
 	$finalArray['porcentaje_ocupacion_servidor'][$i] = $arrayServicios[$i]->calcularPorcentajeOcupacion($clock);
 }
-
-$finalArray['tiempo_promedio_cola'] = $promedioElementoCola;
 
 //=========================================//
 $tiempo_fin = microtime_float();

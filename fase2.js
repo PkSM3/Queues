@@ -154,13 +154,30 @@ function removeTeta(form){
 function ejecutarSimulador(){
 	$('#histo').show();
 	$('#result').html("<img src='img/ajax-loader.gif' />");
+	logTiempos="<ul><h3>";
 	$.ajax({
 		method:'POST',
 		url:'php/Interface.php',
 		cache: false,
 		data: {'cola': JSON.stringify($("#form_cola").serialize()), 'servidor': JSON.stringify($("#form_servidor").serialize()), 'iteraciones': $('#iteraciones').val(),'semilla': $('#semilla').val(), 'num_servidores': $('#num_servidores').val(),'time_stop': $('#time_stop').val() },
 		success:function(res){
-			console.log(res);
+			$('#result').empty();
+			logTiempos+="<li>"+res['numero_promedio_sistema']+": Número promedio en el sistema</li>";
+			logTiempos+="<li>"+res["numero_promedio_cola"]+": Número promedio en la cola</li>";
+			logTiempos+="<li>"+res['tiempo_promedio_sistema']+": Tiempo promedio en el sistema</li>";
+			logTiempos+="<li>"+res["tiempo_promedio_cola"]+": Tiempo promedio cliente en la cola</li>";
+			logTiempos+="<li>Porcentaje de ocupacion del sistema<ul>";
+			$.each(res['porcentaje_ocupacion_servidor'], function(index, indice){
+				logTiempos+="<li>"+indice+": Sistema "+ (index+1) +"</li>";
+			});
+			logTiempos+="</ul></li>";
+			//~ logTiempos+="<li>"+res['porcentaje_ocupacion_servidor']+": Porcentaje de ocupacion del sistema</li>";
+			logTiempos+="<li>"+res["numero_abandonos_sistema"]+": Cliente abandonan el sistema</li>";
+			logTiempos+="<li>"+res['tasa_clientes_efectivamente_atendidos']+": Tasa clientes efectivamente atendidos</li>";
+			logTiempos+="<li>"+res["tiempo_cola_compelta"]+": Tiempo cola completa</li>";
+			logTiempos+="</h3></ul>";
+			$('#result').html(logTiempos);
+			$('#result').show();
 		},
 		error:function(res){
 			alert("mal");
